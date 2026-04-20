@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV["BUNDLE_BIN_PATH"] ||= File.expand_path("../../.bundle/bin/bundle", __dir__)
+
+load Gem.bin_path("bundler", "bundle")

@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Write Tests & Docs After Task",
+  "description": "After each spec task is completed, automatically writes frontend (React) and backend (Rails/RSpec) test cases and adds relevant documentation for the implemented feature.",
+  "version": "1",
+  "when": {
+    "type": "postTaskExecution"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A spec task has just been completed. Please do the following:\n\n1. **Backend tests**: Write RSpec tests for any new Rails models, controllers, or service objects that were created or modified. Place them in the appropriate `backend/spec/` subdirectory (e.g., `models/`, `requests/`, `services/`).\n\n2. **Frontend tests**: Write tests for any new React components, hooks, or utility functions that were created or modified. Place them alongside the source files or in a `__tests__` folder following the existing project conventions.\n\n3. **Documentation**: Add or update inline code documentation (Ruby yard-style comments for Rails, JSDoc for React/TypeScript) for any new public methods, components, or APIs introduced in this task.\n\nFocus only on what was implemented in the completed task. Keep tests minimal but meaningful — cover the happy path and key edge cases."
+  }
+}

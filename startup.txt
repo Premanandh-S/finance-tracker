@@ -1,0 +1,224 @@
+================================================================================
+  PERSONAL FINANCE MANAGER — STARTUP GUIDE
+================================================================================
+
+PROJECT STRUCTURE
+-----------------
+  backend/    Ruby on Rails 8 API (PostgreSQL)
+  frontend/   React + Vite + TypeScript SPA
+
+
+================================================================================
+  PREREQUISITES
+================================================================================
+
+Make sure the following are installed on your machine:
+
+  - Ruby >= 3.3.0         (check: ruby -v)
+  - Bundler               (check: bundle -v  |  install: gem install bundler)
+  - PostgreSQL >= 14      (check: psql --version)
+  - Node.js >= 18         (check: node -v)
+  - npm >= 9              (check: npm -v)
+
+
+================================================================================
+  BACKEND SETUP (Rails API)
+================================================================================
+
+1. Install Ruby gems
+   -----------------
+   cd backend
+   bundle install
+
+2. Configure environment variables (optional — defaults shown)
+   ------------------------------------------------------------
+   The app reads these from the environment. You can export them in your shell
+   or create a .env file (not tracked by git):
+
+     export DB_HOST=localhost          # default: localhost
+     export DB_USERNAME=<your_pg_user> # default: current OS user
+     export DB_PASSWORD=<your_pg_pass> # default: empty
+     export RAILS_ENV=development
+     export SECRET_KEY_BASE=<random_string>   # required in production
+     export JWT_SECRET=<random_string>        # used to sign JWTs
+
+   Generate a secure secret:
+     bundle exec rails secret
+
+3. Create and migrate the database
+   ---------------------------------
+   bundle exec rails db:create
+   bundle exec rails db:migrate
+
+   (Or load the schema directly — faster for a fresh setup)
+   bundle exec rails db:schema:load
+
+4. Start the Rails server
+   -----------------------
+   bundle exec rails server
+   # Runs on http://localhost:3000
+
+   To run on a different port:
+   bundle exec rails server -p 4000
+
+
+================================================================================
+  FRONTEND SETUP (React + Vite)
+================================================================================
+
+1. Install Node dependencies
+   --------------------------
+   cd frontend
+   npm install
+
+2. Configure the API base URL (optional)
+   ----------------------------------------
+   By default the frontend calls http://localhost:3000.
+   To point to a different backend, create frontend/.env.local:
+
+     VITE_API_BASE_URL=http://localhost:3000
+
+3. Start the Vite dev server
+   --------------------------
+   npm run dev
+   # Runs on http://localhost:5173
+
+   Open http://localhost:5173 in your browser.
+
+
+================================================================================
+  RUNNING BOTH TOGETHER
+================================================================================
+
+Open two terminal tabs/windows:
+
+  Terminal 1 — Backend
+  ---------------------
+  cd backend
+  bundle exec rails server
+
+  Terminal 2 — Frontend
+  ----------------------
+  cd frontend
+  npm run dev
+
+Then visit http://localhost:5173
+
+
+================================================================================
+  RUNNING TESTS
+================================================================================
+
+Backend (RSpec)
+---------------
+  cd backend
+
+  # Run all tests
+  bundle exec rspec
+
+  # Run a specific file
+  bundle exec rspec spec/models/user_spec.rb
+  bundle exec rspec spec/requests/auth/sessions_spec.rb
+
+  # Run property-based tests only
+  bundle exec rspec spec/properties/
+
+Frontend (Jest)
+---------------
+  cd frontend
+
+  # Run all tests (single pass)
+  npm test
+
+  # Run in band (sequential, useful for debugging)
+  npm run test:run
+
+
+================================================================================
+  USEFUL RAILS COMMANDS
+================================================================================
+
+  # Open Rails console
+  bundle exec rails console
+
+  # Check defined routes
+  bundle exec rails routes
+
+  # Roll back last migration
+  bundle exec rails db:rollback
+
+  # Reset database (drop + create + migrate)
+  bundle exec rails db:reset
+
+
+================================================================================
+  API ENDPOINTS (all prefixed with /auth)
+================================================================================
+
+  POST   /auth/register                 Register a new user
+  POST   /auth/otp/request              Request an OTP
+  POST   /auth/otp/verify               Verify OTP → returns JWT
+  POST   /auth/login                    Login (OTP or password)
+  DELETE /auth/logout                   Logout (invalidates JWT)
+  POST   /auth/refresh                  Refresh JWT
+  POST   /auth/password/reset/request   Request password reset OTP
+  POST   /auth/password/reset/confirm   Confirm reset with OTP + new password
+
+  All responses are JSON. Protected endpoints require:
+    Authorization: Bearer <token>
+
+
+================================================================================
+  CURRENT IMPLEMENTATION STATUS
+================================================================================
+
+The following tasks from the user-authentication spec have been completed:
+
+  DONE ✓
+  ------
+  1.1  Migration: users table
+  1.2  Migration: otp_codes table
+  1.3  Migration: otp_request_logs table
+  1.4  Migration: jwt_denylist table
+  1.5  Model: User (has_secure_password, E.164/RFC5322 validations)
+  1.6  Model: OtpCode (scopes: active, expired, used)
+  1.7  Model: JwtDenylist (denylisted? class method)
+  2.1  Service: Auth::OtpDeliveryService (SMS/email adapter stub)
+  2.2  Service: Auth::OtpService#request_otp (rate limit, bcrypt, delivery)
+
+  PENDING (resume with "continue")
+  ---------------------------------
+  2.3  Service: Auth::OtpService#verify_otp
+  2.4  Service: Auth::RegistrationService#register
+  2.5  Service: Auth::SessionService (JWT issue/verify/refresh/invalidate)
+  2.6  Service: Auth::PasswordAuthService#authenticate
+  2.7  Service: Auth::PasswordResetService
+  3.x  Controllers and routing
+  4.x  Backend unit tests (RSpec)
+  5.x  Backend integration tests (RSpec request specs)
+  6.x  Backend property-based tests (RSpec + Rantly)
+  7.x  React frontend — API client and auth hook
+  8.x  React frontend — pages and components
+  9.x  React frontend tests (Jest + RTL)
+
+  NOTE: OTP delivery (SMS/email) is stubbed — no real messages are sent.
+  Integrate a real provider (Twilio, SendGrid) by updating
+  backend/app/services/auth/otp_delivery_service.rb.
+
+
+================================================================================
+  NOTES
+================================================================================
+
+  - OTP delivery (SMS/email) uses stub adapters in development.
+    No real SMS or email is sent unless you configure a provider.
+
+  - JWT tokens expire after 24 hours.
+
+  - The frontend stores the access token in memory (React context).
+    Refresh tokens are delivered as HTTP-only cookies by the backend.
+
+  - CORS is configured in backend/config/initializers/ to allow
+    requests from http://localhost:5173 in development.
+
+================================================================================

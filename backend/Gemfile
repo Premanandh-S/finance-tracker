@@ -1,0 +1,35 @@
+# frozen_string_literal: true
+
+source "https://rubygems.org"
+
+ruby ">= 3.3.0"
+
+# --- Core ---
+gem "rails", "~> 8.0"
+gem "pg", "~> 1.5"                    # PostgreSQL adapter (compatible with PostgreSQL 17+)
+gem "puma", "~> 6.4"                  # App server
+
+# --- Auth ---
+gem "bcrypt", "~> 3.1.20"            # Password and OTP hashing (has_secure_password)
+gem "jwt", "~> 2.8"                   # JWT encode/decode (HS256)
+
+# --- Utilities ---
+gem "bootsnap", "~> 1.18", require: false  # Boot time cache
+gem "rack-cors", "~> 2.0"            # CORS headers for React frontend
+
+group :development, :test do
+  gem "rspec-rails", "~> 6.1"        # RSpec test framework
+  gem "factory_bot_rails", "~> 6.4"  # Test factories (optional, project uses inline helpers)
+  gem "faker", "~> 3.3"              # Random test data generation
+  gem "rantly", "~> 2.0"             # Property-based test generation
+  gem "timecop", "~> 0.9"            # Time travel for time-sensitive specs
+end
+
+group :development do
+  gem "rubocop-rails", "~> 2.24", require: false  # Linting
+end
+
+group :test do
+  gem "shoulda-matchers", "~> 6.1"   # Concise model/controller matchers
+  gem "database_cleaner-active_record", "~> 2.1"  # DB cleanup between specs
+end
