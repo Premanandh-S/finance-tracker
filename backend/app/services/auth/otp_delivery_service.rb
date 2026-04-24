@@ -40,14 +40,21 @@ module Auth
     def deliver_via_sms(code)
       # TODO: integrate SMS provider (e.g., Twilio)
       # SmsProvider.deliver(to: @user.identifier, body: "Your OTP is #{code}")
+      #
+      # In development, fall back to email delivery via letter_opener_web so
+      # the OTP is visible at http://localhost:3000/letter_opener
+      if Rails.env.development?
+        AuthMailer.otp_email(to: "dev-sms@financetracker.local", code: code).deliver_now
+      end
     end
 
     # @param code [String] the OTP code
     # @return [void]
     # @raise [Auth::OtpDeliveryService::DeliveryError] if email delivery fails
     def deliver_via_email(code)
-      # TODO: integrate Email provider (e.g., ActionMailer/SendGrid)
-      # AuthMailer.otp_email(to: @user.identifier, code: code).deliver_now
+      AuthMailer.otp_email(to: @user.identifier, code: code).deliver_now
+    rescue StandardError => e
+      raise DeliveryError, "Email delivery failed: #{e.message}"
     end
   end
 end

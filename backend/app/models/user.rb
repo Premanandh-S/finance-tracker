@@ -22,6 +22,10 @@ class User < ApplicationRecord
   # Associations
   has_many :otp_codes, dependent: :destroy
   has_many :otp_request_logs, dependent: :destroy
+  has_many :loans, dependent: :destroy
+  has_many :savings_instruments,  dependent: :destroy
+  has_many :insurance_policies,   dependent: :destroy
+  has_many :pension_instruments,  dependent: :destroy
 
   # E.164: starts with +, followed by 7–15 digits
   PHONE_REGEX = /\A\+[1-9]\d{6,14}\z/

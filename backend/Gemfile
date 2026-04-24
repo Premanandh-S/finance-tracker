@@ -27,6 +27,8 @@ end
 
 group :development do
   gem "rubocop-rails", "~> 2.24", require: false  # Linting
+  gem "letter_opener_web", "~> 3.0"
+  gem "dotenv-rails"               # View emails in browser at /letter_opener
 end
 
 group :test do

@@ -3,6 +3,8 @@
  *
  * Unit tests for the authApi module.
  * All network calls are intercepted via global fetch mock — no real HTTP requests are made.
+ *
+ * @jest-environment node
  */
 
 import {

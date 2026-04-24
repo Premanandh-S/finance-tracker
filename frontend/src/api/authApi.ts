@@ -10,11 +10,20 @@
 // Base URL
 // ---------------------------------------------------------------------------
 
-const BASE_URL: string =
-  (typeof import.meta !== "undefined" &&
-    (import.meta as { env?: Record<string, string> }).env
-      ?.VITE_API_BASE_URL) ||
-  "http://localhost:3000";
+// Vite replaces `import.meta.env.VITE_API_BASE_URL` at build time.
+// In Jest (Node.js / CJS), import.meta is unavailable, so we use
+// process.env.VITE_API_BASE_URL as a fallback, defaulting to localhost.
+declare const __VITE_API_BASE_URL__: string | undefined;
+
+function resolveBaseUrl(): string {
+  // Check process.env first (works in Jest and Node.js environments)
+  if (typeof process !== "undefined" && process.env?.VITE_API_BASE_URL) {
+    return process.env.VITE_API_BASE_URL;
+  }
+  return "http://localhost:3000";
+}
+
+const BASE_URL: string = resolveBaseUrl();
 
 // ---------------------------------------------------------------------------
 // Error code → user-readable message map

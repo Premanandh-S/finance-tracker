@@ -8,7 +8,7 @@ A personal finance management application that helps users track and manage thei
 - **Loans** — Track outstanding balance, interest rate (fixed/floating), monthly payments, and projected payoff timeline
 - **Savings** — Track FDs, RDs, and other savings instruments with maturity dates and projected values
 - **Insurance** — Track policies (term, health, auto, bike) with coverage details, sum assured, and renewal dates
-- **Pensions** — Track EPF, NPS, and similar instruments with contribution history
+- **Pensions** — Track FDs, RDs, and other savings instruments with maturity dates and projected values. Track policies (term, health, auto, bike) with coverage details, sum assured, and renewal dates. Track EPF, NPS, and similar instruments with contribution history
 
 ## Dashboard
 

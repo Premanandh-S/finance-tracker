@@ -28,7 +28,10 @@ Rails.application.configure do
   # Allows the React dev server (localhost:5173) to call the Rails API.
   # Configured via rack-cors in config/initializers/cors.rb.
 
-  # --- Action Mailer (stub in dev — no real emails sent) ---
+  # --- Action Mailer (letter_opener_web in dev — view emails at /letter_opener) ---
+  config.action_mailer.delivery_method = :letter_opener_web
+  config.action_mailer.perform_deliveries = true
   config.action_mailer.raise_delivery_errors = false
   config.action_mailer.perform_caching = false
+  config.action_mailer.default_url_options = { host: "localhost", port: 3000 }
 end

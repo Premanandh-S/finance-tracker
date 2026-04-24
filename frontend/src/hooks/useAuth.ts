@@ -114,15 +114,23 @@ export interface AuthContextValue extends AuthState {
 }
 
 // ---------------------------------------------------------------------------
-// Reducer
+// Initial state — seed token from localStorage so page reloads stay logged in
 // ---------------------------------------------------------------------------
 
-const initialState: AuthState = {
-  token: null,
-  user: null,
-  isAuthenticated: false,
-  isLoading: false,
-};
+function buildInitialState(): AuthState {
+  try {
+    const stored = localStorage.getItem("auth_token");
+    if (stored) {
+      const user = userFromToken(stored);
+      return { token: stored, user, isAuthenticated: true, isLoading: false };
+    }
+  } catch {
+    // Malformed token or localStorage unavailable — start unauthenticated
+  }
+  return { token: null, user: null, isAuthenticated: false, isLoading: false };
+}
+
+const initialState: AuthState = buildInitialState();
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
@@ -236,6 +244,7 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       try {
         const { token } = await verifyOtp({ identifier, otp });
         const user = userFromToken(token);
+        localStorage.setItem("auth_token", token);
         dispatch({ type: "AUTH_SUCCESS", payload: { token, user } });
       } catch (err) {
         dispatch({ type: "AUTH_FAILURE" });
@@ -255,6 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       try {
         const { token } = await login({ identifier, method: "password", password });
         const user = userFromToken(token);
+        localStorage.setItem("auth_token", token);
         dispatch({ type: "AUTH_SUCCESS", payload: { token, user } });
       } catch (err) {
         dispatch({ type: "AUTH_FAILURE" });
@@ -270,9 +280,8 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
 
   const logout = useCallback(async (): Promise<void> => {
     dispatch({ type: "AUTH_START" });
-    // Capture the current token before clearing state
     const currentToken = state.token;
-    // Clear state immediately — best-effort server-side invalidation
+    localStorage.removeItem("auth_token");
     dispatch({ type: "LOGOUT" });
     if (currentToken) {
       try {
@@ -292,10 +301,12 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     try {
       const { token } = await refreshToken(currentToken ?? "");
       const user = userFromToken(token);
+      localStorage.setItem("auth_token", token);
       dispatch({ type: "AUTH_SUCCESS", payload: { token, user } });
       return true;
     } catch {
       // Refresh failed — clear state and redirect to login
+      localStorage.removeItem("auth_token");
       dispatch({ type: "LOGOUT" });
       window.location.href = "/login";
       return false;
